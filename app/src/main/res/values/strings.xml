@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">ConsumerBasket</string>
+    <string name="titleMenuExit">Выход</string>
+    <string name="hintProductNameET">Введите название продука</string>
+    <string name="hintProductWeightET">Введите вес продукта</string>
+    <string name="hintProductPriceET">Введите цену продукта</string>
+    <string name="textProductNameTV">Наименование продукта</string>
+    <string name="textProductPriceTV">Цена продукта</string>
+    <string name="textProductWeightTV">Вес продукта</string>
+    <string name="textTotalPriceTV">Итоговая цена</string>
+    <string name="textAddToBasket">Добавить в корзину</string>
+    <string name="titleEraseDB">Стереть</string>
+</resources>
