@@ -107,4 +107,12 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         }
         return false
     }
+
+    fun deleteProduct(product: Product) {
+        val db = writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(KEY_ID, product.id)
+        db.delete(TABLE_NAME, "id=" + product.id, null)
+        db.close()
+    }
 }

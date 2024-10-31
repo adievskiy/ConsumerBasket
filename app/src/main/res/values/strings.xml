@@ -12,7 +12,7 @@
     <string name="titleEraseDB">Стереть</string>
     <string name="textUpdateBTN">Изменить</string>
     <string name="textDeleteBTN">Удалить</string>
-    <string name="textEditIdET">Введите id</string>
+    <string name="enter_id">Введите id</string>
     <string name="textEditNameET">Введите наименование</string>
     <string name="textEditPriceET">Введите Цену</string>
     <string name="textEditWeightET">Введите Вес</string>

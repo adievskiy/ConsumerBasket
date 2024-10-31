@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import org.w3c.dom.Text
+import java.util.zip.Inflater
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,6 +50,10 @@ class MainActivity : AppCompatActivity() {
         updateBTN.setOnClickListener {
             updateProduct()
         }
+
+        deleteBTN.setOnClickListener {
+            deleteProduct()
+        }
     }
 
     private fun init() {
@@ -79,6 +85,9 @@ class MainActivity : AppCompatActivity() {
                 val product =
                     Product(Integer.parseInt(id), productName, productPrice, productWeight, totalPrice)
                 db.addProduct(product)
+                productNameET.text.clear()
+                productWeightET.text.clear()
+                productPriceET.text.clear()
                 reloadView()
             } else {
                 Toast.makeText(this, "Цена и вес - числа", Toast.LENGTH_LONG).show()
@@ -113,9 +122,32 @@ class MainActivity : AppCompatActivity() {
                 reloadView()
             }
         }
-        updateDialogBuilder.setNegativeButton("Отмена") { dialog, which ->
+        updateDialogBuilder.setNegativeButton("Отмена") { _, _ ->
         }
         updateDialogBuilder.create().show()
+    }
+
+    private fun deleteProduct() {
+        val deleteDialogBuilder = AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val dialogView = inflater.inflate(R.layout.delete_dialog, null)
+        deleteDialogBuilder.setView(dialogView)
+
+        val chooseDeleteId = dialogView.findViewById<EditText>(R.id.deleteET)
+        deleteDialogBuilder.setTitle("Удалить запись?")
+        deleteDialogBuilder.setMessage("Введите идентификатор:")
+        deleteDialogBuilder.setPositiveButton("Обновить") { _, _ ->
+            val id = chooseDeleteId.text.toString()
+            if (id.trim() != "") {
+                val product =
+                    Product(id.toInt(), "", "", "", "")
+                db.deleteProduct(product)
+                reloadView()
+            }
+        }
+        deleteDialogBuilder.setNegativeButton("Отмена") { _, _ ->
+        }
+        deleteDialogBuilder.create().show()
     }
 
     private fun reloadView() {
