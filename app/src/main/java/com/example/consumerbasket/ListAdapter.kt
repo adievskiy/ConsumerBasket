@@ -16,11 +16,13 @@ class ListAdapter(context: Context, productList: MutableList<Product>) :
             view = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false)
         }
 
+        val productId = view?.findViewById<TextView>(R.id.productIdTV)
         val productNameTV = view?.findViewById<TextView>(R.id.productNameTV)
         val productPriceTV = view?.findViewById<TextView>(R.id.productPriceTV)
         val productWeightTV = view?.findViewById<TextView>(R.id.productWeightTV)
         val totalPriceTV = view?.findViewById<TextView>(R.id.totalPriceTV)
 
+        productId?.text = product?.id.toString()
         productNameTV?.text = product?.productName
         productPriceTV?.text = product?.productPrice
         productWeightTV?.text = product?.productWeight

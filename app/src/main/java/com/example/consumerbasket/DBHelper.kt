@@ -36,12 +36,13 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
     }
 
-    fun addProduct(name: String, price: String, weight: String, totalPrice: String) {
+    fun addProduct(product: Product) {
         val values = ContentValues()
-        values.put(KEY_NAME, name)
-        values.put(KEY_PRICE, price)
-        values.put(KEY_WEIGHT, weight)
-        values.put(KEY_TOTAL, totalPrice)
+        values.put(KEY_ID, product.id)
+        values.put(KEY_NAME, product.productName)
+        values.put(KEY_PRICE, product.productPrice)
+        values.put(KEY_WEIGHT, product.productWeight)
+        values.put(KEY_TOTAL, product.totalPrice)
         val db = this.writableDatabase
         db.insert(TABLE_NAME, null, values)
         db.close()
@@ -59,17 +60,19 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
             db.execSQL(selectQuery)
             return productList
         }
+        var id: Int
         var productName: String
         var productPrice: String
         var productWeight: String
         var totalPrice: String
         if (cursor.moveToFirst()) {
             do {
+                id = cursor.getInt(cursor.getColumnIndex("id"))
                 productName = cursor.getString(cursor.getColumnIndex("name"))
                 productWeight = cursor.getString(cursor.getColumnIndex("weight"))
                 productPrice = cursor.getString(cursor.getColumnIndex("price"))
                 totalPrice = cursor.getString(cursor.getColumnIndex("total"))
-                val product = Product(productName, productPrice, productWeight, totalPrice)
+                val product = Product(id, productName, productPrice, productWeight, totalPrice)
                 productList.add(product)
             } while (cursor.moveToNext())
         }
@@ -79,5 +82,29 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     fun eraseDB() {
         val db = this.writableDatabase
         db.delete(TABLE_NAME, null, null)
+
+    }
+
+    fun updateProduct(product: Product) {
+        val db = writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(KEY_ID, product.id)
+        contentValues.put(KEY_NAME, product.productName)
+        contentValues.put(KEY_PRICE, product.productPrice)
+        contentValues.put(KEY_WEIGHT, product.productWeight)
+        contentValues.put(KEY_TOTAL, product.totalPrice)
+        db.update(TABLE_NAME, contentValues, "id=" + product.id, null)
+        db.close()
+    }
+
+    fun isIdExists(id: Int): Boolean {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM $TABLE_NAME WHERE $KEY_ID = ?", arrayOf(id.toString()))
+        cursor.use {
+            if (it.moveToFirst()) {
+                return it.getInt(0) > 0
+            }
+        }
+        return false
     }
 }

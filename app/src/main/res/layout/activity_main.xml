@@ -42,14 +42,42 @@
             android:textSize="18sp"
             tools:ignore="Autofill,TextFields" />
 
-        <Button
-            android:id="@+id/addToBasketBTN"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/textAddToBasket"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/addToBasketBTN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textAddToBasket"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                tools:ignore="ButtonStyle" />
+
+            <Button
+                android:id="@+id/updateBTN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textUpdateBTN"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                tools:ignore="ButtonStyle" />
+
+            <Button
+                android:id="@+id/deleteBTN"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textDeleteBTN"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                tools:ignore="ButtonStyle" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

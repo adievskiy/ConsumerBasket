@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -18,14 +18,15 @@ import androidx.core.view.WindowInsetsCompat
 class MainActivity : AppCompatActivity() {
 
     private val db = DBHelper(this, null)
-    private var product: MutableList<Product> = mutableListOf()
+    private var products: MutableList<Product> = mutableListOf()
     private lateinit var toolbarMain: Toolbar
     private lateinit var productNameET: EditText
     private lateinit var productWeightET: EditText
     private lateinit var productPriceET: EditText
     private lateinit var addToBasketBTN: Button
     private lateinit var listViewLV: ListView
-
+    private lateinit var updateBTN: Button
+    private lateinit var deleteBTN: Button
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,30 +42,11 @@ class MainActivity : AppCompatActivity() {
         init()
 
         addToBasketBTN.setOnClickListener {
-            if (productNameET.text.isEmpty() || productPriceET.text.isEmpty() || productWeightET.text.isEmpty()) {
-                Toast.makeText(this, "Заполните все поля", Toast.LENGTH_LONG).show()
-            } else {
-                if (isValidNumber(productPriceET.text.toString()) && isValidNumber(productWeightET.text.toString())) {
-                    val productName = productNameET.text.toString()
-                    val productWeight = productWeightET.text.toString()
-                    val replaceProductWeight = productWeight.replace(",", ".")
-                    val productPrice = productPriceET.text.toString()
-                    val replaceProductPrice = productPrice.replace(",", ".")
-                    val totalPrice =
-                        (replaceProductWeight.toDouble() * replaceProductPrice.toDouble()).toString()
-                    db.addProduct(
-                        productName,
-                        replaceProductPrice,
-                        replaceProductWeight,
-                        totalPrice
-                    )
-                    product = db.getProduct()
-                    val listAdapter = ListAdapter(this@MainActivity, product)
-                    listViewLV.adapter = listAdapter
-                } else {
-                    Toast.makeText(this, "Цена и вес - числа", Toast.LENGTH_LONG).show()
-                }
-            }
+            addProduct()
+        }
+
+        updateBTN.setOnClickListener {
+            updateProduct()
         }
     }
 
@@ -77,6 +59,70 @@ class MainActivity : AppCompatActivity() {
         productPriceET = findViewById(R.id.productPriceET)
         addToBasketBTN = findViewById(R.id.addToBasketBTN)
         listViewLV = findViewById(R.id.listViewLV)
+        updateBTN = findViewById(R.id.updateBTN)
+        deleteBTN = findViewById(R.id.deleteBTN)
+    }
+
+    private fun addProduct() {
+        if (productNameET.text.isEmpty() || productPriceET.text.isEmpty() || productWeightET.text.isEmpty()) {
+            Toast.makeText(this, "Заполните все поля", Toast.LENGTH_LONG).show()
+        } else {
+            if (isValidNumber(productPriceET.text.toString()) && isValidNumber(productWeightET.text.toString())) {
+                val id = IdGenerator(db).addId()
+                val productName = productNameET.text.toString()
+                val productWeight = productWeightET.text.toString()
+                val replaceProductWeight = productWeight.replace(",", ".")
+                val productPrice = productPriceET.text.toString()
+                val replaceProductPrice = productPrice.replace(",", ".")
+                val totalPrice =
+                    (replaceProductWeight.toDouble() * replaceProductPrice.toDouble()).toString()
+                val product =
+                    Product(Integer.parseInt(id), productName, productPrice, productWeight, totalPrice)
+                db.addProduct(product)
+                reloadView()
+            } else {
+                Toast.makeText(this, "Цена и вес - числа", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun updateProduct() {
+        val updateDialogBuilder = AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val updateDialogView = inflater.inflate(R.layout.update_dialog, null)
+        updateDialogBuilder.setView(updateDialogView)
+
+        val editId = updateDialogView.findViewById<EditText>(R.id.editIdET)
+        val editName = updateDialogView.findViewById<EditText>(R.id.editNameET)
+        val editPrice = updateDialogView.findViewById<EditText>(R.id.editPriceET)
+        val editWeight = updateDialogView.findViewById<EditText>(R.id.editWeightET)
+
+        updateDialogBuilder.setTitle("Обновить запись")
+        updateDialogBuilder.setMessage("Заполните поля:")
+        updateDialogBuilder.setPositiveButton("Обновить") { _, _ ->
+            val id = editId.text.toString()
+            val updatedName = editName.text.toString()
+            val updatedPrice = editPrice.text.toString()
+            val updatedWeight = editWeight.text.toString()
+            val updatedTotalPrice =
+                (updatedPrice.toDouble() * updatedWeight.toDouble()).toString()
+            if (id.trim() != "" && updatedName.trim() != "" && updatedPrice.trim() != "" && updatedWeight.trim() != "") {
+                val product =
+                    Product(id.toInt(), updatedName, updatedPrice, updatedWeight, updatedTotalPrice)
+                db.updateProduct(product)
+                reloadView()
+            }
+        }
+        updateDialogBuilder.setNegativeButton("Отмена") { dialog, which ->
+        }
+        updateDialogBuilder.create().show()
+    }
+
+    private fun reloadView() {
+        products = db.getProduct()
+        val listAdapter = ListAdapter(this@MainActivity, products)
+        listViewLV.adapter = listAdapter
+        listAdapter.notifyDataSetChanged()
     }
 
     private fun isValidNumber(number: String): Boolean {
@@ -93,10 +139,17 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.eraseDB -> {
                 db.eraseDB()
+                reloadView()
                 Toast.makeText(this, "БД очищена", Toast.LENGTH_LONG).show()
             }
+
             R.id.menuExit -> finishAffinity()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onResume() {
+        reloadView()
+        super.onResume()
     }
 }
