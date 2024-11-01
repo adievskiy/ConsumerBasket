@@ -170,8 +170,8 @@ class MainActivity : AppCompatActivity() {
                         Product(
                             id,
                             updatedName,
-                            updatedPrice,
-                            updatedWeight,
+                            replacedUpdPrice,
+                            replacedUpdWeight,
                             updatedTotalPrice.toString()
                         )
                     db.updateProduct(product)
