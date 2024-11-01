@@ -105,8 +105,8 @@ class MainActivity : AppCompatActivity() {
                     Product(
                         Integer.parseInt(id),
                         productName,
-                        productPrice,
-                        productWeight,
+                        replaceProductPrice,
+                        replaceProductWeight,
                         totalPrice
                     )
                 db.addProduct(product)
