@@ -4,9 +4,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="10dp"
     android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:layout_margin="10dp">
+    tools:context=".MainActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarMain"
@@ -51,30 +51,10 @@
                 android:id="@+id/addToBasketBTN"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/textAddToBasket"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:layout_weight="1"
-                tools:ignore="ButtonStyle" />
-
-            <Button
-                android:id="@+id/updateBTN"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textUpdateBTN"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_weight="1"
-                tools:ignore="ButtonStyle" />
-
-            <Button
-                android:id="@+id/deleteBTN"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textDeleteBTN"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_weight="1"
                 tools:ignore="ButtonStyle" />
 
         </LinearLayout>
@@ -88,8 +68,8 @@
             android:id="@+id/listViewLV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:listitem="@layout/list_item"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            tools:listitem="@layout/list_item" />
 
     </LinearLayout>
 

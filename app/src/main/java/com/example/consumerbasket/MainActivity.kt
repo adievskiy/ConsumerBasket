@@ -19,15 +19,12 @@ class MainActivity : AppCompatActivity() {
 
     private val db = DBHelper(this, null)
     private var products: MutableList<Product> = mutableListOf()
-    private val itemId: Int = 0
     private lateinit var toolbarMain: Toolbar
     private lateinit var productNameET: EditText
     private lateinit var productWeightET: EditText
     private lateinit var productPriceET: EditText
     private lateinit var addToBasketBTN: Button
     private lateinit var listViewLV: ListView
-    private lateinit var updateBTN: Button
-    private lateinit var deleteBTN: Button
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,15 +43,7 @@ class MainActivity : AppCompatActivity() {
             addProduct()
         }
 
-        updateBTN.setOnClickListener {
-            updateProductDialog()
-        }
-
-        /*deleteBTN.setOnClickListener {
-            deleteProduct()
-        }*/
-
-        listViewLV.setOnItemClickListener { parent, view, position, id ->
+        listViewLV.setOnItemClickListener { parent, _, position, _ ->
             val selectedProduct = parent.getItemAtPosition(position) as Product
             editDelDialog(selectedProduct)
         }
@@ -69,13 +58,9 @@ class MainActivity : AppCompatActivity() {
         productPriceET = findViewById(R.id.productPriceET)
         addToBasketBTN = findViewById(R.id.addToBasketBTN)
         listViewLV = findViewById(R.id.listViewLV)
-        updateBTN = findViewById(R.id.updateBTN)
-        deleteBTN = findViewById(R.id.deleteBTN)
     }
 
-    private fun editDelDialog(
-        selectedProduct: Product,
-    ) {
+    private fun editDelDialog(selectedProduct: Product) {
         val editDelDialogBuilder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         val editDelDialogView = inflater.inflate(R.layout.edit_del_dialog, null)
@@ -86,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         val dialog = editDelDialogBuilder.create()
 
         editBTN.setOnClickListener {
-            updateProductDialog()
+            updateProductDialog(selectedProduct)
             dialog.dismiss()
         }
 
@@ -135,13 +120,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateProductDialog() {
+    private fun updateProductDialog(selectedProduct: Product) {
         val updateDialogBuilder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         val updateDialogView = inflater.inflate(R.layout.update_dialog, null)
         updateDialogBuilder.setView(updateDialogView)
 
-        val editId = updateDialogView.findViewById<EditText>(R.id.editIdET)
         val editName = updateDialogView.findViewById<EditText>(R.id.editNameET)
         val editPrice = updateDialogView.findViewById<EditText>(R.id.editPriceET)
         val editWeight = updateDialogView.findViewById<EditText>(R.id.editWeightET)
@@ -150,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         val dialog = updateDialogBuilder.create()
 
         updateUpdBTN.setOnClickListener {
-            updateProduct(editId, editName, editPrice, editWeight, dialog)
+            updateProduct(selectedProduct, editName, editPrice, editWeight, dialog)
         }
 
         cancelUpdBTN.setOnClickListener {
@@ -161,19 +145,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateProduct(
-        editId: EditText,
+        selectedProduct: Product,
         editName: EditText,
         editPrice: EditText,
         editWeight: EditText,
-        dialog: AlertDialog,
+        dialog: AlertDialog
     ) {
-        if (editId.text.isEmpty() || editName.text.isEmpty() || editPrice.text.isEmpty()) {
+        if (editName.text.isEmpty() || editPrice.text.isEmpty()) {
             Toast.makeText(this, "Заполните все поля", Toast.LENGTH_LONG).show()
         } else {
-            if (isValidNumber(editId.text.toString()) && isValidNumber(editPrice.text.toString()) &&
+            if (isValidNumber(editPrice.text.toString()) &&
                 isValidNumber(editWeight.text.toString())
             ) {
-                val id = editId.text.toString()
+                val id = selectedProduct.id
                 val updatedName = editName.text.toString()
                 val updatedPrice = editPrice.text.toString()
                 val replacedUpdPrice = updatedPrice.replace(",", ".")
@@ -181,10 +165,10 @@ class MainActivity : AppCompatActivity() {
                 val replacedUpdWeight = updatedWeight.replace(",", ".")
                 val updatedTotalPrice =
                     (replacedUpdPrice.toDouble() * replacedUpdWeight.toDouble())
-                if (id.trim() != "" && updatedName.trim() != "" && updatedPrice.trim() != "" && updatedWeight.trim() != "") {
+                if (updatedName.trim() != "" && updatedPrice.trim() != "" && updatedWeight.trim() != "") {
                     val product =
                         Product(
-                            id.toInt(),
+                            id,
                             updatedName,
                             updatedPrice,
                             updatedWeight,

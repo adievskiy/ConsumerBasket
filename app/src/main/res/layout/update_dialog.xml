@@ -13,13 +13,6 @@
         android:textStyle="bold"/>
 
     <EditText
-        android:id="@+id/editIdET"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/enter_id"
-        tools:ignore="Autofill,TextFields" />
-
-    <EditText
         android:id="@+id/editNameET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
