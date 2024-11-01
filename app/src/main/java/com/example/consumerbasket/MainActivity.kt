@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         val dialog = updateDialogBuilder.create()
 
         updateUpdBTN.setOnClickListener {
-            checkUpdateProduct(selectedProduct, editName, editPrice, editWeight, dialog)
+            updateProduct(selectedProduct, editName, editPrice, editWeight, dialog)
         }
 
         cancelUpdBTN.setOnClickListener {
@@ -144,92 +144,43 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun checkUpdateProduct(
+    private fun updateProduct(
         selectedProduct: Product,
         editName: EditText,
         editPrice: EditText,
         editWeight: EditText,
-        dialog: AlertDialog,
+        dialog: AlertDialog
     ) {
-        val id = selectedProduct.id
-        var updatedName = editName.text.toString()
-        var updatedPrice = editPrice.text.toString()
-        var updatedWeight = editWeight.text.toString()
-        if (editName.text.isEmpty()) {
-            updatedName = selectedProduct.productName
-            if (editPrice.text.isEmpty()) {
-                updatedPrice = selectedProduct.productPrice
-                if (editWeight.text.isEmpty()) {
-                        Toast.makeText(this, "Заполните хотя бы одно поле", Toast.LENGTH_LONG).show()
-                } else {
-                    if (isValidNumber(editWeight.text.toString())) {
-                        updatedWeight = selectedProduct.productWeight
-                        updateProduct(updatedPrice, updatedWeight, updatedName, id, dialog)
-                    } else Toast.makeText(this, "Вес - число", Toast.LENGTH_LONG).show()
-                }
-            } else {
-                if (editWeight.text.isEmpty()) {
-                    if (isValidNumber(editPrice.text.toString())) {
-                        updatedWeight = selectedProduct.productWeight
-                        updateProduct(updatedPrice, updatedWeight, updatedName, id, dialog)
-                    } else Toast.makeText(this, "Цена - число", Toast.LENGTH_LONG).show()
-                } else {
-                    if (isValidNumber(editPrice.text.toString()) &&
-                            isValidNumber(editWeight.text.toString())
-                    ) {
-                        updateProduct(updatedPrice, updatedWeight, updatedName, id, dialog)
-                    } else Toast.makeText(this, "Цена и вес - число", Toast.LENGTH_LONG).show()
-                }
-            }
-        } else if (editPrice.text.isEmpty()) {
-            updatedPrice = selectedProduct.productPrice
-            if (editWeight.text.isEmpty()) {
-                updatedWeight = selectedProduct.productWeight
-                updateProduct(updatedPrice, updatedWeight, updatedName, id, dialog)
-            } else {
-                if (isValidNumber(editWeight.text.toString())) {
-                    updateProduct(updatedPrice, updatedWeight, updatedName, id, dialog)
-                } else Toast.makeText(this, "Вес - число", Toast.LENGTH_LONG).show()
-            }
-        } else if (editWeight.text.isEmpty()) {
-            updatedWeight = selectedProduct.productWeight
-            if (isValidNumber(editPrice.text.toString())) {
-                updateProduct(updatedPrice, updatedWeight, updatedName, id, dialog)
-            } else Toast.makeText(this, "Цена - число", Toast.LENGTH_LONG).show()
+        if (editName.text.isEmpty() || editPrice.text.isEmpty()) {
+            Toast.makeText(this, "Заполните все поля", Toast.LENGTH_LONG).show()
         } else {
             if (isValidNumber(editPrice.text.toString()) &&
                 isValidNumber(editWeight.text.toString())
             ) {
-                updateProduct(updatedPrice, updatedWeight, updatedName, id, dialog)
+                val id = selectedProduct.id
+                val updatedName = editName.text.toString()
+                val updatedPrice = editPrice.text.toString()
+                val replacedUpdPrice = updatedPrice.replace(",", ".")
+                val updatedWeight = editWeight.text.toString()
+                val replacedUpdWeight = updatedWeight.replace(",", ".")
+                val updatedTotalPrice =
+                    (replacedUpdPrice.toDouble() * replacedUpdWeight.toDouble())
+                if (updatedName.trim() != "" && updatedPrice.trim() != "" && updatedWeight.trim() != "") {
+                    val product =
+                        Product(
+                            id,
+                            updatedName,
+                            replacedUpdPrice,
+                            replacedUpdWeight,
+                            updatedTotalPrice.toString()
+                        )
+                    db.updateProduct(product)
+                    reloadView()
+                    dialog.dismiss()
+                }
             } else {
-                Toast.makeText(this, "Цена и вес - числа", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "id, вес и цена - числа", Toast.LENGTH_LONG).show()
             }
-        }
-    }
-
-    private fun updateProduct(
-        updatedPrice: String,
-        updatedWeight: String,
-        updatedName: String,
-        id: Int,
-        dialog: AlertDialog,
-    ) {
-        val replacedUpdPrice = updatedPrice.replace(",", ".")
-        val replacedUpdWeight = updatedWeight.replace(",", ".")
-        val updatedTotalPrice =
-            (replacedUpdPrice.toDouble() * replacedUpdWeight.toDouble())
-        if (updatedName.trim() != "" && updatedPrice.trim() != "" && updatedWeight.trim() != "") {
-            val product =
-                Product(
-                    id,
-                    updatedName,
-                    replacedUpdPrice,
-                    replacedUpdWeight,
-                    updatedTotalPrice.toString()
-                )
-            db.updateProduct(product)
-            reloadView()
-            dialog.dismiss()
         }
     }
 
