@@ -1,31 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/textUpdDlg"
+        android:textSize="28sp"
+        android:textStyle="bold"/>
 
     <EditText
         android:id="@+id/editIdET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/enter_id"/>
+        android:hint="@string/enter_id"
+        tools:ignore="Autofill,TextFields" />
 
     <EditText
         android:id="@+id/editNameET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/textEditNameET"/>
+        android:hint="@string/textEditNameET"
+        tools:ignore="Autofill,TextFields" />
 
     <EditText
         android:id="@+id/editPriceET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/textEditPriceET"/>
+        android:hint="@string/textEditPriceET"
+        tools:ignore="Autofill,TextFields" />
 
     <EditText
         android:id="@+id/editWeightET"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/textEditWeightET"/>
+        android:hint="@string/textEditWeightET"
+        tools:ignore="Autofill,TextFields" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/cancelUpdBTN"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/textCancelUpdBTN"
+            tools:ignore="ButtonStyle" />
+
+        <Button
+            android:id="@+id/updateUpdBTN"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/textUpdateUpdBTN"
+            tools:ignore="ButtonStyle" />
+
+    </LinearLayout>
 
 </LinearLayout>

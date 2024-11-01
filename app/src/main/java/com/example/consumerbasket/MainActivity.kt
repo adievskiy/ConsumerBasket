@@ -14,13 +14,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import org.w3c.dom.Text
-import java.util.zip.Inflater
 
 class MainActivity : AppCompatActivity() {
 
     private val db = DBHelper(this, null)
     private var products: MutableList<Product> = mutableListOf()
+    private val itemId: Int = 0
     private lateinit var toolbarMain: Toolbar
     private lateinit var productNameET: EditText
     private lateinit var productWeightET: EditText
@@ -48,11 +47,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateBTN.setOnClickListener {
-            updateProduct()
+            updateProductDialog()
         }
 
-        deleteBTN.setOnClickListener {
+        /*deleteBTN.setOnClickListener {
             deleteProduct()
+        }*/
+
+        listViewLV.setOnItemClickListener { parent, view, position, id ->
+            val selectedProduct = parent.getItemAtPosition(position) as Product
+            editDelDialog(selectedProduct)
         }
     }
 
@@ -69,6 +73,36 @@ class MainActivity : AppCompatActivity() {
         deleteBTN = findViewById(R.id.deleteBTN)
     }
 
+    private fun editDelDialog(
+        selectedProduct: Product,
+    ) {
+        val editDelDialogBuilder = AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val editDelDialogView = inflater.inflate(R.layout.edit_del_dialog, null)
+        editDelDialogBuilder.setView(editDelDialogView)
+        val editBTN = editDelDialogView.findViewById<Button>(R.id.editBTN)
+        val newDeleteBTN = editDelDialogView.findViewById<Button>(R.id.newDeleteBTN)
+        val cancelBTN = editDelDialogView.findViewById<Button>(R.id.cancelBTN)
+        val dialog = editDelDialogBuilder.create()
+
+        editBTN.setOnClickListener {
+            updateProductDialog()
+            dialog.dismiss()
+        }
+
+        newDeleteBTN.setOnClickListener {
+            deleteProduct(selectedProduct)
+            dialog.dismiss()
+        }
+
+        cancelBTN.setOnClickListener {
+            dialog.dismiss()
+        }
+
+
+        dialog.show()
+    }
+
     private fun addProduct() {
         if (productNameET.text.isEmpty() || productPriceET.text.isEmpty() || productWeightET.text.isEmpty()) {
             Toast.makeText(this, "Заполните все поля", Toast.LENGTH_LONG).show()
@@ -83,7 +117,13 @@ class MainActivity : AppCompatActivity() {
                 val totalPrice =
                     (replaceProductWeight.toDouble() * replaceProductPrice.toDouble()).toString()
                 val product =
-                    Product(Integer.parseInt(id), productName, productPrice, productWeight, totalPrice)
+                    Product(
+                        Integer.parseInt(id),
+                        productName,
+                        productPrice,
+                        productWeight,
+                        totalPrice
+                    )
                 db.addProduct(product)
                 productNameET.text.clear()
                 productWeightET.text.clear()
@@ -95,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateProduct() {
+    private fun updateProductDialog() {
         val updateDialogBuilder = AlertDialog.Builder(this)
         val inflater = this.layoutInflater
         val updateDialogView = inflater.inflate(R.layout.update_dialog, null)
@@ -105,45 +145,73 @@ class MainActivity : AppCompatActivity() {
         val editName = updateDialogView.findViewById<EditText>(R.id.editNameET)
         val editPrice = updateDialogView.findViewById<EditText>(R.id.editPriceET)
         val editWeight = updateDialogView.findViewById<EditText>(R.id.editWeightET)
+        val cancelUpdBTN = updateDialogView.findViewById<Button>(R.id.cancelUpdBTN)
+        val updateUpdBTN = updateDialogView.findViewById<Button>(R.id.updateUpdBTN)
+        val dialog = updateDialogBuilder.create()
 
-        updateDialogBuilder.setTitle("Обновить запись")
-        updateDialogBuilder.setMessage("Заполните поля:")
-        updateDialogBuilder.setPositiveButton("Обновить") { _, _ ->
-            val id = editId.text.toString()
-            val updatedName = editName.text.toString()
-            val updatedPrice = editPrice.text.toString()
-            val updatedWeight = editWeight.text.toString()
-            val updatedTotalPrice =
-                (updatedPrice.toDouble() * updatedWeight.toDouble()).toString()
-            if (id.trim() != "" && updatedName.trim() != "" && updatedPrice.trim() != "" && updatedWeight.trim() != "") {
-                val product =
-                    Product(id.toInt(), updatedName, updatedPrice, updatedWeight, updatedTotalPrice)
-                db.updateProduct(product)
-                reloadView()
-            }
+        updateUpdBTN.setOnClickListener {
+            updateProduct(editId, editName, editPrice, editWeight, dialog)
         }
-        updateDialogBuilder.setNegativeButton("Отмена") { _, _ ->
+
+        cancelUpdBTN.setOnClickListener {
+            dialog.dismiss()
         }
-        updateDialogBuilder.create().show()
+
+        dialog.show()
     }
 
-    private fun deleteProduct() {
-        val deleteDialogBuilder = AlertDialog.Builder(this)
-        val inflater = this.layoutInflater
-        val dialogView = inflater.inflate(R.layout.delete_dialog, null)
-        deleteDialogBuilder.setView(dialogView)
-
-        val chooseDeleteId = dialogView.findViewById<EditText>(R.id.deleteET)
-        deleteDialogBuilder.setTitle("Удалить запись?")
-        deleteDialogBuilder.setMessage("Введите идентификатор:")
-        deleteDialogBuilder.setPositiveButton("Обновить") { _, _ ->
-            val id = chooseDeleteId.text.toString()
-            if (id.trim() != "") {
-                val product =
-                    Product(id.toInt(), "", "", "", "")
-                db.deleteProduct(product)
-                reloadView()
+    private fun updateProduct(
+        editId: EditText,
+        editName: EditText,
+        editPrice: EditText,
+        editWeight: EditText,
+        dialog: AlertDialog,
+    ) {
+        if (editId.text.isEmpty() || editName.text.isEmpty() || editPrice.text.isEmpty()) {
+            Toast.makeText(this, "Заполните все поля", Toast.LENGTH_LONG).show()
+        } else {
+            if (isValidNumber(editId.text.toString()) && isValidNumber(editPrice.text.toString()) &&
+                isValidNumber(editWeight.text.toString())
+            ) {
+                val id = editId.text.toString()
+                val updatedName = editName.text.toString()
+                val updatedPrice = editPrice.text.toString()
+                val replacedUpdPrice = updatedPrice.replace(",", ".")
+                val updatedWeight = editWeight.text.toString()
+                val replacedUpdWeight = updatedWeight.replace(",", ".")
+                val updatedTotalPrice =
+                    (replacedUpdPrice.toDouble() * replacedUpdWeight.toDouble())
+                if (id.trim() != "" && updatedName.trim() != "" && updatedPrice.trim() != "" && updatedWeight.trim() != "") {
+                    val product =
+                        Product(
+                            id.toInt(),
+                            updatedName,
+                            updatedPrice,
+                            updatedWeight,
+                            updatedTotalPrice.toString()
+                        )
+                    db.updateProduct(product)
+                    reloadView()
+                    dialog.dismiss()
+                }
+            } else {
+                Toast.makeText(this, "id, вес и цена - числа", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun deleteProduct(selectedProduct: Product) {
+        val deleteDialogBuilder = AlertDialog.Builder(this)
+
+
+        deleteDialogBuilder.setTitle("Внимание!")
+        deleteDialogBuilder.setMessage("Удалить запись?")
+        deleteDialogBuilder.setPositiveButton("Удалить") { _, _ ->
+            val id = selectedProduct.id
+            val product =
+                Product(id, "", "", "", "")
+            db.deleteProduct(product)
+            reloadView()
         }
         deleteDialogBuilder.setNegativeButton("Отмена") { _, _ ->
         }

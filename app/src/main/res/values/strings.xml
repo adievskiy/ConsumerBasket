@@ -17,4 +17,11 @@
     <string name="textEditPriceET">Введите Цену</string>
     <string name="textEditWeightET">Введите Вес</string>
     <string name="textProductIdTV">id продукта</string>
+    <string name="textNewDeleteBTN">Удалить</string>
+    <string name="textEditBTN">Изменить</string>
+    <string name="textCancelBTN">Отменить</string>
+    <string name="textCancelUpdBTN">Отменить</string>
+    <string name="textUpdateUpdBTN">Обновить</string>
+    <string name="textEditDelDlg">Выберите действие</string>
+    <string name="textUpdDlg">Заполните все поля</string>
 </resources>
